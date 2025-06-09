@@ -1,0 +1,36 @@
+{
+  "name": "proxy-ai",
+  "version": "1.0.0",
+  "description": "Proxy API for multiple AI models (OpenAI, Gemini, Claude, Ollama, etc.)",
+  "main": "index.js",
+  "scripts": {
+    "start": "node proxy.js",
+    "dev": "nodemon proxy.js",
+    "test": "echo \"No tests defined yet\""
+  },
+  "keywords": [
+    "ai",
+    "proxy",
+    "openai",
+    "gemini",
+    "claude",
+    "ollama",
+    "api",
+    "nodejs",
+    "express"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Unknownmsv/proxy-ai"
+  },
+  "author": "Unknownmsv",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.8",
+    "dotenv": "^16.3.1",
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.3"
+  }
+}
