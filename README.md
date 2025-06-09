@@ -37,3 +37,7 @@ localhost:8080/proxy/{ai_name}
 ```bash
 git clone https://github.com/unknownmsv/proxy-ai.git
 cd proxy-ai
+
+### 2. نصب کتاب خونه ها:
+```bash
+npm install
