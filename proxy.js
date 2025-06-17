@@ -14,18 +14,44 @@ const handlers = {
 app.post("/proxy/:ai", async (req, res) => {
   const ai = req.params.ai.toLowerCase();
   const prompt = req.body.prompt;
+  const acceptStream = req.headers.accept === "text/event-stream"; // تشخیص کلاینت استریم
+
+  if (!prompt) {
+    return res.status(400).json({ error: "پارامتر 'prompt' الزامی است." });
+  }
 
   const handler = handlers[ai];
   if (!handler) {
-    return res.status(404).json({ error: `AI provider "${ai}" not supported.` });
+    return res.status(404).json({ error: `سرویس ${ai} پشتیبانی نمی‌شود.` });
   }
 
   try {
-    const result = await handler(prompt);
-    res.json(result);
+    if (acceptStream) {
+      // حالت استریم برای کلاینت‌های سازگار (مثل EventSource)
+      res.setHeader("Content-Type", "text/event-stream");
+      res.setHeader("Cache-Control", "no-cache");
+      res.setHeader("Connection", "keep-alive");
+
+      const ollamaStream = await handler(prompt, { stream: true });
+      ollamaStream.on("data", (chunk) => {
+        const data = chunk.toString();
+        res.write(`data: ${data}\n\n`); // ارسال به فرمت SSE
+      });
+
+      ollamaStream.on("end", () => res.end());
+    } else {
+      // حالت عادی برای کلاینت‌های معمولی (مثل fetch/axios)
+      const result = await handler(prompt, { stream: false });
+      res.json(result);
+    }
   } catch (err) {
-    console.error(err.response?.data || err.message);
-    res.status(500).json({ error: "Failed to get response from AI provider." });
+    console.error("Proxy Error:", err.message);
+    if (acceptStream) {
+      res.write(`event: error\ndata: ${JSON.stringify({ error: err.message })}\n\n`);
+      res.end();
+    } else {
+      res.status(500).json({ error: err.message });
+    }
   }
 });
 
